@@ -1,0 +1,5 @@
+---
+- name: Jenkins Configuration
+  tasks:
+     - name: Ping test
+       ping:

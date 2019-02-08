@@ -10,45 +10,57 @@ Vagrant.configure("2") do |config|
 
    config.vm.define "gitlab" do |gitlab|
      gitlab.vm.hostname = "gitlab-server.com"
-     config.vm.network "private_network", ip: "10.0.5.5"
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+     gitlab.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+ 
+     #config.vm.network "private_network", ip: "10.0.5.5"
+     #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
 
    config.vm.define "jenkins" do |jenkins|
      jenkins.vm.hostname = "jenkins-server.com"
-     config.vm.network "private_network", ip: "10.0.5.10"
+     jenkins.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+
+     #jenkins.vm.network "private_network", ip: "10.0.5.10"
+     #jenkins.vm.provision "ansible" do |ans| 
+     #	ans.playbook = "jenkins.yml"
+     #  ans.tags = "execute"
+     #end
      #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
 
-   config.vm.define "ansible" do |ansible|
-     ansible.vm.hostname = "ansible-server.com"
-     config.vm.network "private_network", ip: "10.0.5.15"
-     config.vm.provision "shell", inline: $script
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
-   end
+   #config.vm.define "ansible" do |ansible|
+   #  ansible.vm.hostname = "ansible-server.com"
+   #  config.vm.network "private_network", ip: "10.0.5.15"
+   #  config.vm.provision "shell", inline: $script
+   #  config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+   #end
 
-   config.vm.define "hashicorp" do |hashicorp|
-     hashicorp.vm.hostname = "hashicorp-server.com"
-     config.vm.network "private_network", ip: "10.0.5.20"
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+   config.vm.define "vault" do |vault|
+     vault.vm.hostname = "vault-server.com" 
+     vault.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+     #config.vm.network "private_network", ip: "10.0.5.20"
+     #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
  
    config.vm.define "rocket" do |rocket|
      rocket.vm.hostname = "rocketchat-server.com"
-     config.vm.network "private_network", ip: "10.0.5.25"
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+     rocket.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+     #config.vm.network "private_network", ip: "10.0.5.25"
+     #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
 
    config.vm.define "production" do |production|
      production.vm.hostname = "production-server.com"
-     config.vm.network "private_network", ip: "10.0.5.30"
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+     production.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+     #config.vm.network "private_network", ip: "10.0.5.30"
+     #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
 
    config.vm.define "preprod" do |preprod|
      preprod.vm.hostname = "preprod-server.com"
-     config.vm.network "private_network", ip: "10.0.5.35"
-     config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+     preprod.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
+     #config.vm.network "private_network", ip: "10.0.5.35"
+     #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end 
 
 
