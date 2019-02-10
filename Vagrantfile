@@ -10,8 +10,8 @@ Vagrant.configure("2") do |config|
 
    config.vm.define "gitlab" do |gitlab|
      gitlab.vm.hostname = "gitlab-server.com"
-     gitlab.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
- 
+     #gitlab.vm.network "public_network", bridge: 'en0: Wi-Fi(AirPort)', ip: "10.0.5.5" 
+     gitlab.vm.network "public_network", bridge: 'en0: Wi-Fi(AirPort)'
      #config.vm.network "private_network", ip: "10.0.5.5"
      #config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
    end
