@@ -1,0 +1,17 @@
+- name: Add Gitlab repo and install package
+  shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+- name: Install gitlab community edition
+  shell: EXTERNAL_URL="http://gitlab.SSAProject.com" 
+- name: Install gitlab
+  yum:
+    name: gitlab-ce
+    state: installed
+- name: Reconfigure gitlab url name
+  shell: gitlab-ctl reconfigure
+- name: Add service through port 8o
+  command: firewall-cmd --permanent --add-service=80/tcp
+- name: Add service port 443 tcp
+  command: firewall-cmd --permanent --add-service=443/tcp
+- name: reload firewalld
+  command: systemctl reload firewalld
+
