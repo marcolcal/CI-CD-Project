@@ -3,10 +3,10 @@
     name: '*'
     state: latest
 - name: Add Gitlab repo and install package
-  shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+  shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
 - name: Install the gitlab pakage
   yum: 
-    name: gitlab-ee
+    name: gitlab-ce
     state: latest
 - name: Enable service firewalld
   service:
