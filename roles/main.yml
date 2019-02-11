@@ -1,0 +1,20 @@
+--- #Master Playbook
+- hosts: gitlab
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - gitlab
+- hosts: jenkins
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - jenkins
+- hosts: rocket
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - rocket
+

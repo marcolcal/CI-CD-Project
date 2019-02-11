@@ -1,0 +1,77 @@
+---
+- hosts: rocket
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  tasks:
+  - name: update the system
+    yum:
+      name: '*'
+      state: latest
+  - name: download unzip
+    yum:
+      name: unzip
+      state: latest
+  - name: Download the latest version of rocket chat
+    command: curl -L https://releases.rocket.chat/latest/download -o /tmp/rocket.chat.tgz
+  - name: Extract foo.tgz into /var/lib/foo
+    command: tar -xzf /tmp/rocket.chat.tgz -C /tmp
+  - name: doing the npm install
+    command: cd /tmp/bundle/programs/server && npm install
+  - name: Delete /opt/Rocket.Chat directory if it exists from a previous install
+    file: state=absent path=/opt/Rocket.Chat
+  - name: Move Rocket.Chat from /tmp to /opt
+    shell: mv /tmp/bundle /opt/Rocket.Chat
+  - name: add the rocket chat user
+    user:
+      name: rocketchat 
+      create_home: no
+      password_lock: yes
+    #- name: changing the name of the file
+    #shell:  mv /tmp/bundle /opt/Rocket.Chat
+    #- name: create directory
+    #file:
+    # state: directory
+    # path: "/opt/Rocket.Chat"
+    #- name: copy the files
+    #copy: 
+    #  src: "/tmp/bundle" 
+    #  dest: "/opt/Rocket.Chat"
+    #  remote_src: yes
+    #- name: delete the other files
+    #file: path=/tmp/bundle state=absent
+  - name: changed ownership of the opt/rocketchat
+    command: chown -R rocketchat:rocketchat /opt/Rocket.Chat
+  - name: creates the service file
+    command: echo -e "[Unit]\nDescription=The Rocket.Chat server\nAfter=network.target remote-fs.target nss-lookup.target nginx.target mongod.target\n[Service]\nExecStart=/usr/local/bin/node /opt/Rocket.Chat/main.js\nStandardOutput=syslog\nStandardError=syslog\nSyslogIdentifier=rocketchat\nUser=rocketchat\nEnvironment=LD_PRELOAD=/opt/Rocket.Chat/programs/server/npm/node_modules/sharp/vendor/lib/libz.so NODE_ENV=production MONGO_URL=mongodb://localhost:27017/rocketchat ROOT_URL=http://your-host-name.com-as-accessed-from-internet:3000/ PORT=3000\n[Install]\nWantedBy=multi-user.target" | sudo tee /usr/lib/systemd/system/rocketchat.service
+  - name: exporting the variables
+    shell: export PORT=3000
+  - name: export
+    shell: export ROOT_URL=http://rockethome.com:3000/
+  - name: export mongo
+    shell: export MONGO_URL=mongodb://localhost:27017/rocketchat
+  - name: Enable service mongo
+    service:
+      name: mongod 
+      enabled: yes
+  - name: Start service mongod, if not started
+    service:
+      name: mongod
+      state: started
+  - name: Enables service rocket if not enabled
+    service:
+      name: rocketchat 
+      enabled: yes
+  - name: Starts rocketchat if not started
+    service:
+      name: rocketchat
+      state: started
+  - name: allow port 3000 permanently to the rule
+    firewalld:
+      port: 3000/tcp
+      permanent: yes
+      state: enabled
+  - name: reload firewalld for rules to take effect
+    service:
+      name: firewalld
+      state: reloaded

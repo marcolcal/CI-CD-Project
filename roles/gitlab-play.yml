@@ -1,0 +1,45 @@
+---
+- hosts: gitlab
+  sudo: yes
+  connection: ssh
+  user: vagrant
+  tasks:
+  - name: Update the system
+    yum: 
+      name: '*'
+      state: latest
+  - name: Add Gitlab repo and install package
+    shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+  - name: Install the gitlab pakage
+    yum: 
+      name: gitlab-ee
+      state: latest
+  - name: Enable service firewalld
+    service:
+      name: firewalld
+      enabled: yes
+  - name: reload firewalld
+    service:
+      name: firewalld
+      state: started
+  - name: Add service http rule to run permanetly
+    firewalld:
+      service: http
+      permanent: yes
+      state: enabled
+  - name: allow port 80 permanently to the rule
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+  - name: allow port 443 to the rule
+    firewalld:
+      port: 443/tcp
+      permanent: yes
+      state: enabled
+  - name: reload firewalld for rules to take effect
+    service:
+      name: firewalld
+      state: reloaded
+  - name: Reconfigure gitlab
+    command: gitlab-ctl reconfigure

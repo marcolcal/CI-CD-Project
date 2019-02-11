@@ -1,7 +1,0 @@
---- #Master Playbook
-- hosts: gitlab
-  user: vagrant
-  sudo: yes
-  connection: ssh
-  roles:
-    - gitlab
