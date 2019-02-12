@@ -1,0 +1,73 @@
+---
+- hosts: vault
+  become: yes
+  user: vagrant
+  connection: ssh
+  tasks:
+    - name: Download go
+      raw: wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
+    - name: Extract go pacckage
+      raw: tar -xzf go1.11.4.linux-amd64.tar.gz
+    - name: Move go to /usr/local
+      raw: mv go /usr/local
+    - name: Set env variables
+      raw: export GOROOT=/usr/local/go
+    - name: GOPATH
+      raw: export GOPATH=$HOME/Projects/Proj1
+    - name: Set the path
+      raw: export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+    - name: Install git
+      yum:
+        name: git
+        state: latest
+    - name: Cloning consul
+      raw: mkdir -p $GOPATH/src/github.com/hashicorp && cd !$
+    - name: git clone
+      raw: git clone https://github.com/hashicorp/consul.git
+    - name: run make
+      raw: cd consul && make tools
+    - name: building consul
+      raw: make dev
+    - name: Download vault binary
+      unarchive:
+        src: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip"
+        dest: /usr/bin/
+        remote_src: True
+      become: true
+      become_user: vagrant
+    - name: Create the config directory
+      file:
+        path: /etc/opt/vault/
+        state: directory
+    - name: Config vault to server
+      copy:
+        src: vault.service
+        dest: /etc/opt/vault/
+      become: true
+    - name: Copy vault service
+      copy:
+        src: vault.service
+        dest: /usr/lib/systemd/system/vault.service
+      become: true
+    - name: systemctl start vault
+      systemd: 
+        state: started
+        name: vault
+        daemon_reload: yes
+      become: true
+    - pause:
+        seconds: 15
+
+    - name: Initialize the vault
+      command: vault operator init
+      register: keys
+      environment:
+        VAULT_ADDR: "http://127.0.0.1:8200"
+
+    - debug: msg="{{ keys }}"
+
+
+
+
+
+
