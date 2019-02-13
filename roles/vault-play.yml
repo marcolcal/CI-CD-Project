@@ -74,32 +74,31 @@
       service:
         name: consul
         enabled: yes
-    - name: Check to see if the vault binary exists already if not continuous
+    - name: Check to see if the vault binary exists already if not continue
       stat:
         path: /opt/vault_1.0.2_linux_amd64.zip
       register: vault_exists
-      #- name: removes the vault binary if exists
-      #file:
-      #  state: absent
-      #  path: /opt/vault_1.0.2_linux_amd64.zip
-      #when: vault_exists.stat.exists == true
+    - name: removes the vault binary if exists
+      file:
+        state: absent
+        path: /opt/vault_1.0.2_linux_amd64.zip
+      when: vault_exists.stat.exists == true
     - name: Downloads the vault binary
       get_url:
-        url: https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip
+        url: https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
         dest: /opt/
         owner: vagrant
         group: vagrant
-        mode: 0755
-      when: vault_exists.stat.exists == false
+        mode: 0755 
     - name: Check to see if the unzipped vault file exists
       stat:
         path: /usr/bin/vault
       register: vault_on
-      #- name: removes the unzipped vault if exists
-      #file:
-      # state: absent
-      #  path: /usr/bin/vault
-      #when: vault_on.stat.exists == true
+    - name: removes the unzipped vault if exists
+      file:
+        state: absent
+        path: /usr/bin/vault
+      when: vault_on.stat.exists == true
     - name: unzips vault
       unarchive:
         src: /opt/vault_1.0.2_linux_amd64.zip
