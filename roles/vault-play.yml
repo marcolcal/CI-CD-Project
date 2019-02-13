@@ -1,73 +1,232 @@
----
+--- #THis is the vault playbook
 - hosts: vault
   become: yes
   user: vagrant
   connection: ssh
   tasks:
-    - name: Download go
-      raw: wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
-    - name: Extract go pacckage
-      raw: tar -xzf go1.11.4.linux-amd64.tar.gz
-    - name: Move go to /usr/local
-      raw: mv go /usr/local
-    - name: Set env variables
-      raw: export GOROOT=/usr/local/go
-    - name: GOPATH
-      raw: export GOPATH=$HOME/Projects/Proj1
-    - name: Set the path
-      raw: export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-    - name: Install git
-      yum:
-        name: git
-        state: latest
-    - name: Cloning consul
-      raw: mkdir -p $GOPATH/src/github.com/hashicorp && cd !$
-    - name: git clone
-      raw: git clone https://github.com/hashicorp/consul.git
-    - name: run make
-      raw: cd consul && make tools
-    - name: building consul
-      raw: make dev
-    - name: Download vault binary
-      unarchive:
-        src: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip"
-        dest: /usr/bin/
-        remote_src: True
-      become: true
-      become_user: vagrant
-    - name: Create the config directory
+    - name: Remove previous installation binary
       file:
-        path: /etc/opt/vault/
+        state: absent
+        path: /opt/consul_1.4.2_linux_amd64.zip
+    - name: download the binary for consul
+      get_url:
+        url: https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip 
+        dest: /opt/
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+      register: vault_download
+    - name: Delete the previos file in usr/bin
+      file:
+        state: absent
+        path: /usr/bin/consul
+    - name: Unzip the archive for consul
+      unarchive:
+        src: /opt/consul_1.4.2_linux_amd64.zip 
+        dest: /usr/bin/
+        copy: no
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+    - name: check to see if the file already exists
+      stat:
+        path: /etc/systemd/system/consul.service
+      register: file_exist
+    - name: Remove if consul.service exists
+      file:
+        state: absent
+        path: /etc/systemd/system/consul.service
+      when: file_exist.stat.exists == false
+    - name: Copy the System init file for consul
+      template:
+        src: ./vault/files/consul.service
+        dest: /etc/systemd/system/consul.service
+        owner: vagrant
+        group: vagrant
+      notify: systemd_reload
+    - name: checks to see if the directory exists
+      stat:
+        path: /etc/consul.d/
+      register: consuld_exists
+    - name: make the configuration directory
+      file:
+        path: /etc/consul.d/
         state: directory
-    - name: Config vault to server
-      copy:
-        src: vault.service
-        dest: /etc/opt/vault/
-      become: true
-    - name: Copy vault service
-      copy:
-        src: vault.service
-        dest: /usr/lib/systemd/system/vault.service
-      become: true
-    - name: systemctl start vault
-      systemd: 
-        state: started
+      when: consuld_exists.stat.exists == false
+    - name: checks to see if ui.json exists from previous installations
+      stat:
+        path: /etc/consul.d/ui.json
+      register: ui_stat
+    - name: Grab the file ui.json and added to the directory
+      template: 
+        src: ./vault/files/ui.json
+        dest: /etc/consul.d/
+        owner: vagrant
+        group: vagrant
+      when: ui_stat.stat.exists == false
+      notify: systemd_reload
+
+    - name: Starts and enables consul
+      service:
+        name: consul
+        state: restarted
+    - name: Enables consul
+      service:
+        name: consul
+        enabled: yes
+    - name: Check to see if the vault binary exists already if not continuous
+      stat:
+        path: /opt/vault_1.0.2_linux_amd64.zip
+      register: vault_exists
+      #- name: removes the vault binary if exists
+      #file:
+      #  state: absent
+      #  path: /opt/vault_1.0.2_linux_amd64.zip
+      #when: vault_exists.stat.exists == true
+    - name: Downloads the vault binary
+      get_url:
+        url: https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip
+        dest: /opt/
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+      when: vault_exists.stat.exists == false
+    - name: Check to see if the unzipped vault file exists
+      stat:
+        path: /usr/bin/vault
+      register: vault_on
+      #- name: removes the unzipped vault if exists
+      #file:
+      # state: absent
+      #  path: /usr/bin/vault
+      #when: vault_on.stat.exists == true
+    - name: unzips vault
+      unarchive:
+        src: /opt/vault_1.0.2_linux_amd64.zip
+        dest: /usr/bin/
+        copy: no
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+      when: vault_on.stat.exists == false
+    - name: check to see if the vault config directory exists
+      stat:
+        path: /etc/vault/
+      register: vault_conf
+    - name: Make vault config directory
+      file:
+        path: /etc/vault/
+        state: directory
+      when: vault_conf.stat.exists == false
+    - name: check to see if the config.hcl exists
+      stat:
+        path: /etc/vault/config.hcl
+      register: config_hcl
+    - name: Adds the config hcl template
+      template:
+        src: ./vault/files/config.hcl
+        dest: /etc/vault/
+        owner: vagrant
+        group: vagrant
+      when: config_hcl.stat.exists == false
+    - name: check to see if the vault sevice file exists
+      stat:
+        path: /etc/systemd/system/vault.service
+      register: vault_ser
+    - name: add the vault service file
+      template:
+        src: ./vault/files/vault.service
+        dest: /etc/systemd/system/
+        owner: vagrant
+        group: vagrant
+      when: vault_ser.stat.exists == false
+      notify: systemd_reload
+    - name: Starts and enables vault
+      service:
         name: vault
-        daemon_reload: yes
-      become: true
-    - pause:
-        seconds: 15
+        state: restarted
+    - name: Enables vault
+      service:
+        name: vault
+        enabled: yes
+    - name: export env variable
+      raw: export VAULT_ADDR=http://10.0.0.190:8200
+        #- name: Run concul to see if installed
+        #shell: consul
+        #register: consul_on
+        #- name: Check contents for emptyness
+        #debug:
+        #msg: "Consul is not on"
+        #when: consul_on.stdout == ""
+        #ignore_errors: yes
 
-    - name: Initialize the vault
-      command: vault operator init
-      register: keys
-      environment:
-        VAULT_ADDR: "http://127.0.0.1:8200"
+        #- name: "Set vault binary capabilities"
+        #capabilities:
+        #path: /usr/local/bin/vault
+        #capability: cap_ipc_lock+ep
+        #state: present
 
-    - debug: msg="{{ keys }}"
-
-
-
-
-
-
+      #- name: Copy the System init file
+      #template:
+      # src: ./vault/files/vault.service
+      #  dest: /etc/systemd/system/vault.service
+      #  owner: root
+      #  group: root
+      #notify: systemd_reload
+      #- name: config file
+      #template:
+      #  src: ./vault/files/vault.hcl.j2
+      #  dest: /etc/vault.hcl
+      #  owner: vagrant
+      #  group: vagrant
+      #- name: Vault service
+      #service:
+      #  name: vault
+      #  state: started
+      # enabled: yes
+      #- name: Initializes the state of vault
+      #raw: export VAULT_ADDR=http://10.0.0.85:8200
+      #- name: Create unseal directories
+      #file:
+      #  path: ~/unsealkey
+      #  state: directory
+      #delegate_to: localhost
+      #- name: Create root key directories
+      #file:
+      #  path: ~/rootKey
+      #  state: directory
+      #delegate_to: localhost
+      #- name: Initialise Vault operator
+      #shell: vault operator init -key-shares=5 -key-threshold=3 -format json
+      #environment:
+      #  VAULT_ADDR: "http://10.0.0.85:8200"
+      #register: vault_init_results
+      #- name: Parse output of vault init
+      #set_fact:
+      #  vault_init_parsed: "{{ vault_init_results.stdout | from_json }}"
+      #- name: Write unseal keys to files
+      #copy:
+      #  dest: "{{ playbook_dir }}/unseal_key_{{ item.0 }}"
+      #  content: "{{ item.1 }}"
+      #with_indexed_items: "{{ vault_init_parsed.unseal_keys_hex }}"
+      #delegate_to: localhost
+      #- name: Write root token to file
+      #copy:
+      #  content: "{{ vault_init_parsed.root_token }}"
+      #  dest: ~/rootkey
+      #delegate_to: localhost
+      #- name: Reading unseal key contents
+      #command: cat {{item}}
+      #register: unseal_keys
+      #with_fileglob: ~/unsealkey/*
+      #delegate_to: localhost
+      #become: no
+      #- name: Unseal vault with unseal keys
+      #shell: |
+      #  vault operator unseal {{ item.stdout }}
+      #environment:
+      #  VAULT_ADDR: "http://127.0.0.1:8200"
+      #with_items: "{{unseal_keys.results}}"
+  handlers:
+    - name: systemd_reload
+      command: systemctl daemon-reload
