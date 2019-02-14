@@ -23,4 +23,15 @@
   connection: ssh
   roles:
     - vault
-
+- hosts: production
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - production
+- hosts: preprod
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - preprod
