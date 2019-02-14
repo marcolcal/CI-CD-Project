@@ -144,4 +144,4 @@
     name: vault
     enabled: yes
 - name: export env variable
-  raw: export VAULT_ADDR=http://10.0.0.190:8200
+  raw: export VAULT_ADDR=http://10.2.3.70:8200
