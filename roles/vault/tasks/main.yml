@@ -1,150 +1,147 @@
 --- #These are the tasks for the vault playbook
-    - name: Remove previous installation binary
-      file:
-        state: absent
-        path: /opt/consul_1.4.2_linux_amd64.zip
-    - name: download the binary for consul
-      get_url:
-        url: https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip 
-        dest: /opt/
-        owner: vagrant
-        group: vagrant
-        mode: 0755
-      register: vault_download
-    - name: Delete the previos file in usr/bin
-      file:
-        state: absent
-        path: /usr/bin/consul
-    - name: Unzip the archive for consul
-      unarchive:
-        src: /opt/consul_1.4.2_linux_amd64.zip 
-        dest: /usr/bin/
-        copy: no
-        owner: vagrant
-        group: vagrant
-        mode: 0755
-    - name: check to see if the file already exists
-      stat:
-        path: /etc/systemd/system/consul.service
-      register: file_exist
-    - name: Remove if consul.service exists
-      file:
-        state: absent
-        path: /etc/systemd/system/consul.service
-      when: file_exist.stat.exists == false
-    - name: Copy the System init file for consul
-      template:
-        src: ./vault/files/consul.service
-        dest: /etc/systemd/system/consul.service
-        owner: vagrant
-        group: vagrant
-      notify: systemd_reload
-    - name: checks to see if the directory exists
-      stat:
-        path: /etc/consul.d/
-      register: consuld_exists
-    - name: make the configuration directory
-      file:
-        path: /etc/consul.d/
-        state: directory
-      when: consuld_exists.stat.exists == false
-    - name: checks to see if ui.json exists from previous installations
-      stat:
-        path: /etc/consul.d/ui.json
-      register: ui_stat
-    - name: Grab the file ui.json and added to the directory
-      template: 
-        src: ./vault/files/ui.json
-        dest: /etc/consul.d/
-        owner: vagrant
-        group: vagrant
-      when: ui_stat.stat.exists == false
-      notify: systemd_reload
+- name: Remove previous installation binary
+  file:
+    state: absent
+    path: /opt/consul_1.4.2_linux_amd64.zip
+- name: download the binary for consul
+  get_url:
+    url: https://releases.hashicorp.com/consul/1.4.2/consul_1.4.2_linux_amd64.zip 
+    dest: /opt/
+    owner: vagrant
+    group: vagrant
+    mode: 0755
+  register: vault_download
+- name: Delete the previos file in usr/bin
+  file:
+    state: absent
+    path: /usr/bin/consul
+- name: Unzip the archive for consul
+  unarchive:
+    src: /opt/consul_1.4.2_linux_amd64.zip 
+    dest: /usr/bin/
+    copy: no
+    owner: vagrant
+    group: vagrant
+    mode: 0755
+- name: check to see if the file already exists
+  stat:
+    path: /etc/systemd/system/consul.service
+  register: file_exist
+- name: Remove if consul.service exists
+  file:
+    state: absent
+    path: /etc/systemd/system/consul.service
+  when: file_exist.stat.exists == false
+- name: Copy the System init file for consul
+  template:
+    src: ./vault/files/consul.service
+    dest: /etc/systemd/system/consul.service
+    owner: vagrant
+    group: vagrant
+  notify: systemd_reload
+- name: checks to see if the directory exists
+  stat:
+    path: /etc/consul.d/
+  register: consuld_exists
+- name: make the configuration directory
+  file:
+    path: /etc/consul.d/
+    state: directory
+  when: consuld_exists.stat.exists == false
+- name: checks to see if ui.json exists from previous installations
+  stat:
+    path: /etc/consul.d/ui.json
+  register: ui_stat
+- name: Grab the file ui.json and added to the directory
+  template: 
+    src: ./vault/files/ui.json
+    dest: /etc/consul.d/
+    owner: vagrant
+    group: vagrant
+  when: ui_stat.stat.exists == false
+  notify: systemd_reload
 
-    - name: Starts and enables consul
-      service:
-        name: consul
-        state: restarted
-    - name: Enables consul
-      service:
-        name: consul
-        enabled: yes
-    - name: Check to see if the vault binary exists already if not continue
-      stat:
-        path: /opt/vault_1.0.2_linux_amd64.zip
-      register: vault_exists
-    - name: removes the vault binary if exists
-      file:
-        state: absent
-        path: /opt/vault_1.0.2_linux_amd64.zip
-      when: vault_exists.stat.exists == true
-    - name: Downloads the vault binary
-      get_url:
-        url: https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
-        dest: /opt/
-        owner: vagrant
-        group: vagrant
-        mode: 0755 
-    - name: Check to see if the unzipped vault file exists
-      stat:
-        path: /usr/bin/vault
-      register: vault_on
-    - name: removes the unzipped vault if exists
-      file:
-        state: absent
-        path: /usr/bin/vault
-      when: vault_on.stat.exists == true
-    - name: unzips vault
-      unarchive:
-        src: /opt/vault_1.0.2_linux_amd64.zip
-        dest: /usr/bin/
-        copy: no
-        owner: vagrant
-        group: vagrant
-        mode: 0755
-      when: vault_on.stat.exists == false
-    - name: check to see if the vault config directory exists
-      stat:
-        path: /etc/vault/
-      register: vault_conf
-    - name: Make vault config directory
-      file:
-        path: /etc/vault/
-        state: directory
-      when: vault_conf.stat.exists == false
-    - name: check to see if the config.hcl exists
-      stat:
-        path: /etc/vault/config.hcl
-      register: config_hcl
-    - name: Adds the config hcl template
-      template:
-        src: ./vault/files/config.hcl
-        dest: /etc/vault/
-        owner: vagrant
-        group: vagrant
-      when: config_hcl.stat.exists == false
-    - name: check to see if the vault sevice file exists
-      stat:
-        path: /etc/systemd/system/vault.service
-      register: vault_ser
-    - name: add the vault service file
-      template:
-        src: ./vault/files/vault.service
-        dest: /etc/systemd/system/
-        owner: vagrant
-        group: vagrant
-      when: vault_ser.stat.exists == false
-      notify: systemd_reload
-    - name: Starts and enables vault
-      service:
-        name: vault
-        state: restarted
-    - name: Enables vault
-      service:
-        name: vault
-        enabled: yes
-    - name: export env variable
-      raw: export VAULT_ADDR=http://10.0.0.190:8200
-  handlers:
-    - name: systemd_reload
-      command: systemctl daemon-reload
+- name: Starts and enables consul
+  service:
+    name: consul
+    state: restarted
+- name: Enables consul
+  service:
+    name: consul
+    enabled: yes
+- name: Check to see if the vault binary exists already if not continue
+  stat:
+    path: /opt/vault_1.0.2_linux_amd64.zip
+  register: vault_exists
+- name: removes the vault binary if exists
+  file:
+    state: absent
+    path: /opt/vault_1.0.2_linux_amd64.zip
+  when: vault_exists.stat.exists == true
+- name: Downloads the vault binary
+  get_url:
+    url: https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip
+    dest: /opt/
+    owner: vagrant
+    group: vagrant
+    mode: 0755 
+- name: Check to see if the unzipped vault file exists
+  stat:
+    path: /usr/bin/vault
+  register: vault_on
+- name: removes the unzipped vault if exists
+  file:
+    state: absent
+    path: /usr/bin/vault
+  when: vault_on.stat.exists == true
+- name: unzips vault
+  unarchive:
+    src: /opt/vault_1.0.2_linux_amd64.zip
+    dest: /usr/bin/
+    copy: no
+    owner: vagrant
+    group: vagrant
+    mode: 0755
+  when: vault_on.stat.exists == false
+- name: check to see if the vault config directory exists
+  stat:
+    path: /etc/vault/
+  register: vault_conf
+- name: Make vault config directory
+  file:
+    path: /etc/vault/
+    state: directory
+  when: vault_conf.stat.exists == false
+- name: check to see if the config.hcl exists
+  stat:
+    path: /etc/vault/config.hcl
+  register: config_hcl
+- name: Adds the config hcl template
+  template:
+    src: ./vault/files/config.hcl
+    dest: /etc/vault/
+    owner: vagrant
+    group: vagrant
+  when: config_hcl.stat.exists == false
+- name: check to see if the vault sevice file exists
+  stat:
+    path: /etc/systemd/system/vault.service
+  register: vault_ser
+- name: add the vault service file
+  template:
+    src: ./vault/files/vault.service
+    dest: /etc/systemd/system/
+    owner: vagrant
+    group: vagrant
+  when: vault_ser.stat.exists == false
+  notify: systemd_reload
+- name: Starts and enables vault
+  service:
+    name: vault
+    state: restarted
+- name: Enables vault
+  service:
+    name: vault
+    enabled: yes
+- name: export env variable
+  raw: export VAULT_ADDR=http://10.0.0.190:8200

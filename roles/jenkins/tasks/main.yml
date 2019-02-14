@@ -22,6 +22,11 @@
     name: jenkins
     enabled: yes
     state: started
+- name: Start Firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
 - name: Open Firewall Port
   firewalld:
     zone: public
@@ -29,3 +34,10 @@
     permanent: true
     state: enabled
     immediate: true
+- name: Add httpd service permanently
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+- name: Reload firewalld
+  command: firewall-cmd --reload
