@@ -1,0 +1,48 @@
+Manual CI setup
+
+•	On GitLab server:
+o	Create a new repo, copy down the address, it should look like this:
+	git@10.0.0.41:marcolcal/cicd-pipeline.git
+o	Add your local ~/.ssh/id_rsa.pub to the SSH keys on Gitlab (e.g. http://10.0.0.41/profile/keys)
+o	Clone the repo to your local machine, git add index.html build.py from the other repo, git commit, git push
+•	On Jenkins server:
+o	Open up Jenkins in the browser
+o	SSH in and grab the admin key, enter in the browser, run through the setup wizard
+o	Create a new job
+o	Set the Repositories -> Git -> Repository URL to the above URL for the repo
+o	Changes Branches to build -> Branch specifier -> (empty)
+o	Set Build Triggers -> Poll SCM -> Schedule to * * * * *
+o	Add a new shell build step, set the command to “python build.py”
+o	Trigger a build if you want, it will fail
+o	SSH setup on Jenkins server:
+	As root, run these:
+•	ssh-keygen -t rsa
+•	sudo mv ~/.ssh/ /var/lib/jenkins
+•	sudo chown jenkins:jenkins /var/lib/jenkins/.ssh
+	Also as root, edit /etc/passwd and change /bin/false to /bin/bash on the Jenkins user:
+jenkins:x:996:993:Jenkins Automation Server:/var/lib/jenkins:/bin/bash
+•	Copy the /var/lib/jenkins/.ssh/id_rsa.pub and add it to the production and preprod /home/vagrant/.ssh/authorized_keys
+•	Add the same id_rsa.pub to the Gitlab SSH keys, same as you did with your local user
+•	Grab the IP of the production and preprod servers and modify /etc/hosts on the Jenkins server like this:
+o	10.0.0.117 production-server.com
+o	10.0.0.232 stage-server.com
+•	sudo su - jenkins
+o	ssh vagrant@production-server.com
+o	ssh vagrant@stage-server.com 
+o	Accept the host keys for both hosts
+
+After host keys are set up, trigger another build on Jenkins and it should succeed. The production server should display the latest version of index.html in master.
+
+To test the staging -> master workflow, do these steps on your local copy of the repo:
+o	git pull
+o	git checkout -b my_new_branch
+o	(make some changes to the index.html)
+o	git add index.html
+o	git commit -m “Commit message goes here”
+o	git push -u origin my_new_branch
+o	(wait 60 seconds, Jenkins should pick up the new branch and push to the staging server, verify your change is showing in the browser)
+o	Go to the GitLab interface, switch to the branch view, create a new Merge Request for the branch you just created.
+o	Submit the merge request and click Merge, the change should land in master.
+o	(wait another 60 seconds, you should see Jenkins trigger a build for master, which should update the production server, verify in the browser)
+o	Locally, switch back to master and pull to get the latest changes: git checkout master; git pull
+
