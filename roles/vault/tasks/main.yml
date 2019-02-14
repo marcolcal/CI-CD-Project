@@ -1,9 +1,4 @@
---- #THis is the vault playbook
-- hosts: vault
-  become: yes
-  user: vagrant
-  connection: ssh
-  tasks:
+--- #These are the tasks for the vault playbook
     - name: Remove previous installation binary
       file:
         state: absent

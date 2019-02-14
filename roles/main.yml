@@ -17,4 +17,10 @@
   connection: ssh
   roles:
     - rocket
+- hosts: vault
+  user: vagrant
+  sudo: yes
+  connection: ssh
+  roles:
+    - vault
 
