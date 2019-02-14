@@ -42,9 +42,4 @@
   - meta: flush_handlers
   - debug:
       var: change_temp_pass
-handlers:
-  - name: restart mysql
-    service: 
-      name: mysqld 
-      state: restarted
 

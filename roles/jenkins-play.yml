@@ -39,3 +39,11 @@
       permanent: true
       state: enabled
       immediate: true
+  - name: Add httpd service permanently
+    firewalld:
+      service: https
+      permanent: yes
+      state: enabled
+  - name: Reload firewalld
+    command: firewall-cmd --reload
+
