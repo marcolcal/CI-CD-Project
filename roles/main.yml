@@ -11,6 +11,7 @@
   connection: ssh
   roles:
     - jenkins
+    - sshkeyjenkins
 - hosts: rocket
   user: vagrant
   sudo: yes
@@ -29,9 +30,11 @@
   connection: ssh
   roles:
     - production
+    - sshkeywebapp
 - hosts: preprod
   user: vagrant
   sudo: yes
   connection: ssh
   roles:
     - preprod
+    - sshkeywebapp

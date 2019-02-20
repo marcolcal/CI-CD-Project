@@ -1,0 +1,3 @@
+---
+#ssh vars
+public_key_path: /Users/admin/shadowsoft/project/.aws/jenkins.pub

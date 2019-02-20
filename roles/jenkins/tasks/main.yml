@@ -16,7 +16,7 @@
   lineinfile:
     path: /etc/sysconfig/jenkins
     regexp: ^JENKINS_JAVA_OPTIONS
-    line: JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"
+    line: JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=true"
 - name: Enable and Start the Jenkins Service
   service:
     name: jenkins
