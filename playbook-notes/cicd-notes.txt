@@ -47,4 +47,3 @@ To test the staging -> master workflow, did these steps on your local copy of th
    o	Locally, I switched back to master and pull to get the latest changes: git checkout master; git pull
 
 Thats is folks!!!
-
