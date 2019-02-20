@@ -1,0 +1,40 @@
+---
+- name: Create a 2048-bit SSH key for user ec2-user
+  user:
+    name: vagrant
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/jenkins
+  tags:
+    - sshkeys
+- name: Add SSH-Key to the SSH Agent
+  shell: |
+    eval "$(ssh-agent)"
+    ssh-add /home/vagrant/.ssh/jenkins
+  tags:
+    - sshkeys
+- fetch:
+    src: /home/vagrant/.ssh/jenkins.pub
+    dest: /home/marco/project/cicd-Project/.ssh_keys/jenkins.pub
+    flat: yes
+  tags:
+    - sshkeys
+
+- name: Creates .ssh directory
+  file:
+    path: /var/lib/jenkins/.ssh
+    state: directory
+  tags:
+    - sshkeys
+
+- name: copy SSH KEY
+  copy: src=/home/vagrant/.ssh/jenkins dest=/var/lib/jenkins/.ssh/jenkins remote_src=yes directory_mode=yes
+  tags:
+    - sshkeys
+
+- fetch:
+    src: /home/vagrant/.ssh/jenkins
+    dest: /home/marco/project/cicd-Project/.ssh_keys/jenkins
+    flat: yes
+  tags:
+    - sshkeys
