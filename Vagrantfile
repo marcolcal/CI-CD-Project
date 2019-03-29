@@ -53,7 +53,8 @@ Vagrant.configure("2") do |config|
    
    config.vm.define "gitlab" do |gitlab|
      gitlab.vm.hostname = "gitlab-server.com"
-     config.vm.network "public_network", ip: "10.2.3.50"
+     config.vm.network "private_network", ip: "10.2.3.50"
+     #config.vm.network "public_network", ip: "10.2.3.50"
      #gitlab.vm.network "public_network", bridge: 'en0: Wi-Fi(AirPort)'
      gitlab.vm.provider :virtualbox do |v|
        v.customize ["modifyvm", :id, "--memory", "2048"]
@@ -64,8 +65,9 @@ Vagrant.configure("2") do |config|
 
    config.vm.define "jenkins" do |jenkins|
      jenkins.vm.hostname = "jenkins-server.com"
+     config.vm.network "private_network", ip: "10.2.3.60"
+     #config.vm.network "public_network", ip: "10.2.3.60"
      #jenkins.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.60"
      jenkins.vm.provision "shell", inline: $scriptJen
      #jenkins.vm.provision "ansible" do |ans| 
      #	ans.playbook = "jenkins.yml"
@@ -76,28 +78,32 @@ Vagrant.configure("2") do |config|
    config.vm.define "vault" do |vault|
      vault.vm.hostname = "vault-server.com" 
      #vault.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.70"
+     #config.vm.network "public_network", ip: "10.2.3.70"
+     config.vm.network "private_network", ip: "10.2.3.70"
      vault.vm.provision "shell", inline: $scriptVault
    end
  
    config.vm.define "rocket" do |rocket|
      rocket.vm.hostname = "rocketchat-server.com"
      #rocket.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.80"
+     #config.vm.network "public_network", ip: "10.2.3.80"
+     config.vm.network "private_network", ip: "10.2.3.80"
      rocket.vm.provision "shell", inline: $scriptRocket
    end
 
    config.vm.define "production" do |production|
      production.vm.hostname = "production-server.com"
      #production.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.90"
+     #config.vm.network "public_network", ip: "10.2.3.90"
+     config.vm.network "private_network", ip: "10.2.3.90"
      production.vm.provision "shell", inline: $scriptProd
    end
 
    config.vm.define "preprod" do |preprod|
      preprod.vm.hostname = "preprod-server.com"
      #preprod.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.100"
+     #config.vm.network "public_network", ip: "10.2.3.100"
+     config.vm.network "private_network", ip: "10.2.3.100"
      preprod.vm.provision "shell", inline: $scriptPreprod
    end 
 
