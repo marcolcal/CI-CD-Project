@@ -75,7 +75,7 @@ Vagrant.configure("2") do |config|
      #  ans.tags = "execute"
      #end
      jenkins.vm.provider :virtualbox do |v|
-       v.name = 'marco_gitlab'
+       v.name = 'marco_jenkins'
      end
    end
 
