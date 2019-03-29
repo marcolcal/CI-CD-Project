@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
      #	ans.playbook = "jenkins.yml"
      #  ans.tags = "execute"
      #end
-     jenkins.provider :virtualbox do |v|
+     jenkins.vm.provider :virtualbox do |v|
        v.name = 'marco_gitlab'
      end
    end
