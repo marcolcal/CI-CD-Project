@@ -1,0 +1,43 @@
+- name: Ensure Jenkins Repository is Installed
+  yum_repository:
+    name: jenkins
+    state: present
+    description: Official Jenkins Yum Repo
+    baseurl: http://pkg.jenkins.io/redhat
+    gpgkey: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+    gpgcheck: yes
+    enabled: yes
+- name: Ensure Jenkins is Installed
+  yum:
+    name: jenkins
+    update_cache: yes
+    state: present
+- name: Disable Jenkins setup wizard
+  lineinfile:
+    path: /etc/sysconfig/jenkins
+    regexp: ^JENKINS_JAVA_OPTIONS
+    line: JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=true"
+- name: Enable and Start the Jenkins Service
+  service:
+    name: jenkins
+    enabled: yes
+    state: started
+- name: Start Firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+- name: Open Firewall Port
+  firewalld:
+    zone: public
+    port: 8080/tcp
+    permanent: true
+    state: enabled
+    immediate: true
+- name: Add httpd service permanently
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+- name: Reload firewalld
+  command: firewall-cmd --reload
