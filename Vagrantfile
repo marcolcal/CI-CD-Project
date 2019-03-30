@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
      
-   config.vm.box = "bento/centos-7.6"
+   config.vm.box = "centos/7"
    
    #$script = <<-SCRIPT
    #  sudo yum install epel-release -y
@@ -19,9 +19,11 @@ Vagrant.configure("2") do |config|
    SCRIPT
 
    $scriptJen = <<-SCRIPT
+     sudo yum update -y
+     sudo yum install wget -y
      sudo yum install java-1.8.0-openjdk-devel -y
-     sudo yum install curl -y
-     sudo yum localinstall package-1.2.3.rpm 
+     #sudo yum localinstall package-1.2.3.rpm 
+     sudo rpm -i package-1.2.3.rpm
      sudo yum install git -y 
    SCRIPT
 
@@ -53,8 +55,7 @@ Vagrant.configure("2") do |config|
    
    config.vm.define "gitlab" do |gitlab|
      gitlab.vm.hostname = "gitlab-server.com"
-     config.vm.network "public_network", ip: "10.2.3.50"
-     #gitlab.vm.network "public_network", bridge: 'en0: Wi-Fi(AirPort)'
+     config.vm.network "public_network", ip: "10.0.0.50"
      gitlab.vm.provider :virtualbox do |v|
        v.customize ["modifyvm", :id, "--memory", "2048"]
        v.customize ["modifyvm", :id, "--cpus", "2"]
@@ -64,8 +65,7 @@ Vagrant.configure("2") do |config|
 
    config.vm.define "jenkins" do |jenkins|
      jenkins.vm.hostname = "jenkins-server.com"
-     #jenkins.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.60"
+     config.vm.network "public_network", ip: "10.0.0.60"
      jenkins.vm.provision "shell", inline: $scriptJen
      #jenkins.vm.provision "ansible" do |ans| 
      #	ans.playbook = "jenkins.yml"
@@ -75,29 +75,25 @@ Vagrant.configure("2") do |config|
 
    config.vm.define "vault" do |vault|
      vault.vm.hostname = "vault-server.com" 
-     #vault.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.70"
+     config.vm.network "public_network", ip: "10.0.0.70"
      vault.vm.provision "shell", inline: $scriptVault
    end
  
    config.vm.define "rocket" do |rocket|
      rocket.vm.hostname = "rocketchat-server.com"
-     #rocket.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.80"
+     config.vm.network "public_network", ip: "10.0.0.80"
      rocket.vm.provision "shell", inline: $scriptRocket
    end
 
    config.vm.define "production" do |production|
      production.vm.hostname = "production-server.com"
-     #production.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.90"
+     config.vm.network "public_network", ip: "10.0.0.90"
      production.vm.provision "shell", inline: $scriptProd
    end
 
    config.vm.define "preprod" do |preprod|
      preprod.vm.hostname = "preprod-server.com"
-     #preprod.vm.network "public_network", bridge: 'eth0: Wi-Fi(AirPort)'
-     config.vm.network "public_network", ip: "10.2.3.100"
+     config.vm.network "public_network", ip: "10.0.0.100"
      preprod.vm.provision "shell", inline: $scriptPreprod
    end 
 

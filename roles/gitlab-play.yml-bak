@@ -1,0 +1,130 @@
+---
+- hosts: gitlab
+  #sudo: yes
+  become: true
+  become_user: vagrant
+  become_method: sudo
+  connection: ssh
+  #user: vagrant
+  tasks:
+          #- name: Update the system
+          #yum: 
+          #name: '*'
+          #state: latest
+  - name: Check if GitLab configuration file already exists.
+    stat: path=/etc/gitlab/gitlab.rb
+    register: gitlab_config_file
+  - name: Check if GitLab is already installed.
+    stat: path=/usr/bin/gitlab-ctl
+    register: gitlab_file
+  # Install GitLab and its dependencies.
+  - name: Install GitLab dependencies.
+    package: name={{ item }} state=present
+    with_items:
+      - openssh-server
+      - postfix
+      - curl
+      - openssl
+      - tzdata
+  - name: Enable Postfix service
+    become: yes
+    service:
+      name: postfix 
+      enabled: yes
+      state: started
+    notify: restart_postfix 
+  - name: Copy GitLab Repo Template
+    become: yes
+    template:
+      src: gitlab.repo.j2
+      dest: /etc/yum.repos.d/gitlab.repo
+      owner: root
+      group: root
+      mode: 755 
+    tags:
+      - gitlab 
+      - gitlab_repo
+    notify: yum_clean
+
+  - name: Installing GitLab
+    become: yes
+    yum:
+      name: gitlab-ce
+      state: present
+      disable_gpg_check: yes 
+    tags:
+      - gitlab
+
+  - name: GitLab reconfigure
+    become: yes
+    shell: /bin/gitlab-ctl reconfigure
+    tags: 
+      - gitlab
+    notify: start_gitlab
+
+  - name: Open Firewall Ports 
+    become: yes
+    firewalld: 
+      permanent: true
+      service: "{{ item }}"
+      state: enabled
+      immediate: yes
+    with_items:
+      - http
+      - https
+
+  - name: Display Password
+    debug: 
+      msg: "Login credentials for the GitLab admin are  root / 5iveL!fe"
+    tags: 
+      - gitlab 
+
+
+
+
+
+  - name: Add Gitlab repo and install package
+    shell: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+    args:
+      warn: no
+  - name: Install the gitlab pakage
+    yum: 
+      name: gitlab-ce
+      state: latest
+  - name: Enable service firewalld
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+  - name: Start firewalld cli
+    become: yes
+    command: sudo systemctl start firewalld
+    #- name: Add service http rule to run permanetly
+    #firewalld:
+    #  service: http
+    #  permanent: yes
+    #  state: enabled
+    #become: yes
+  - name: add http
+    command: sudo firewall-cmd --permanent --zone=public --add-service=http
+  - name: enable https
+    command: sudo firewall-cmd --permanent --zone=public --add-service=https
+  - name: allow port 80 permanently to the rule
+    become: yes
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+  - name: allow port 443 to the rule
+    become: yes
+    firewalld:
+      port: 443/tcp
+      permanent: yes
+      state: enabled
+  - name: reload firewalld for rules to take effect
+    become: yes
+    service:
+      name: firewalld
+      state: reloaded
+  - name: Reconfigure gitlab
+    command: gitlab-ctl reconfigure

@@ -1,40 +1,59 @@
 --- #Master Playbook
 - hosts: gitlab
   user: vagrant
-  sudo: yes
+  become: yes
   connection: ssh
+  gather_facts: False
   roles:
     - gitlab
+  tags:
+    - gitlab_server
 - hosts: jenkins
   user: vagrant
-  sudo: yes
+  become: yes
   connection: ssh
+  gather_facts: False
   roles:
     - jenkins
     - sshkeyjenkins
+  tags:
+    - jenkins_server
 - hosts: rocket
   user: vagrant
-  sudo: yes
+  become: yes
   connection: ssh
+  gather_facts: False
   roles:
     - rocket
+  tags: 
+    - rocket_server
 - hosts: vault
   user: vagrant
-  sudo: yes
+  become: yes
   connection: ssh
+  gather_facts: False
   roles:
     - vault
+  tags:
+    - vault_server
 - hosts: production
-  user: vagrant
-  sudo: yes
+  user: vagrant 
+  become: yes
   connection: ssh
+  gather_facts: False
+  tags:
+    - production_server
   roles:
     - production
     - sshkeywebapp
 - hosts: preprod
   user: vagrant
-  sudo: yes
+  become: yes
   connection: ssh
+  gather_facts: False
+  tags:
+    - preprod_server
   roles:
     - preprod
     - sshkeywebapp
+

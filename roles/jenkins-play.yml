@@ -3,6 +3,8 @@
   user: vagrant
   become: yes
   connection: ssh
+  roles:
+    - sshkeyjenkins
   tasks:
   - name: Ensure Jenkins Repository is Installed
     yum_repository:
