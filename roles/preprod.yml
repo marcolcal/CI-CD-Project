@@ -1,0 +1,8 @@
+---
+- name: Preproduction server ansible provisioner 
+- hosts: preprod
+  become: yes
+  gather_facts: False
+  roles:
+  - preprod
+  - sshkeywebapp

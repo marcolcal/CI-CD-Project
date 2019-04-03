@@ -1,0 +1,9 @@
+---
+- name: Provisions vault server
+- hosts: vault
+  become: yes
+  gather_facts: False
+
+  roles:
+    - vault
+

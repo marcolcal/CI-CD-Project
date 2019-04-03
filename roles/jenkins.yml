@@ -1,0 +1,9 @@
+---
+- name: Proivions Jenkins Server
+- hosts: jenkins
+  become: yes
+  gather_facts: False
+  roles:
+    - jenkins
+    - sshkeyjenkins
+

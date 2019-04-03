@@ -3,7 +3,7 @@ Description=Consul
 Documentation=https://www.consul.io/
 
 [Service]
-ExecStart=/usr/bin/consul agent -server -ui -data-dir=/tmp/consul -bootstrap-expect=1 -node=vault -bind=10.2.3.70 -config-dir=/etc/consul.d/
+ExecStart=/usr/bin/consul agent -server -ui -data-dir=/tmp/consul -bootstrap-expect=1 -node=vault -bind=192.168.56.4 -config-dir=/etc/consul.d/
 ExecReload=/bin/kill -HUP $MAINPID
 LimitNOFILE=65536
 

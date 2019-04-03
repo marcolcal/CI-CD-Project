@@ -15,7 +15,7 @@
     - sshkeys
 - fetch:
     src: /home/vagrant/.ssh/jenkins.pub
-    dest: /home/marco/project/cicd-Project/.ssh_keys/jenkins.pub
+    dest: /home/marcolcal/shadow-project/cicd-Project/.ssh_keys/jenkins.pub
     flat: yes
   tags:
     - sshkeys
@@ -34,7 +34,7 @@
 
 - fetch:
     src: /home/vagrant/.ssh/jenkins
-    dest: /home/marco/project/cicd-Project/.ssh_keys/jenkins
+    dest: /home/marcolcal/shadow-project/cicd-Project/.ssh_keys/jenkins
     flat: yes
   tags:
     - sshkeys

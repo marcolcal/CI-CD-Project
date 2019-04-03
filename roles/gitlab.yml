@@ -1,0 +1,9 @@
+---
+- name: Provision Gitlab server 
+  hosts: gitlab
+  become: yes
+  gather_facts: False
+
+  roles:
+    - gitlab
+

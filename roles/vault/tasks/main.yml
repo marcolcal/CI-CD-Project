@@ -34,7 +34,7 @@
   when: file_exist.stat.exists == false
 - name: Copy the System init file for consul
   template:
-    src: ./vault/files/consul.service
+    src: ./vault/templates/consul.service
     dest: /etc/systemd/system/consul.service
     owner: vagrant
     group: vagrant
@@ -54,7 +54,7 @@
   register: ui_stat
 - name: Grab the file ui.json and added to the directory
   template: 
-    src: ./vault/files/ui.json
+    src: ./vault/templates/ui.json
     dest: /etc/consul.d/
     owner: vagrant
     group: vagrant
@@ -118,7 +118,7 @@
   register: config_hcl
 - name: Adds the config hcl template
   template:
-    src: ./vault/files/config.hcl
+    src: ./vault/templates/config.hcl
     dest: /etc/vault/
     owner: vagrant
     group: vagrant
@@ -129,7 +129,7 @@
   register: vault_ser
 - name: add the vault service file
   template:
-    src: ./vault/files/vault.service
+    src: ./vault/templates/vault.service
     dest: /etc/systemd/system/
     owner: vagrant
     group: vagrant
@@ -144,4 +144,4 @@
     name: vault
     enabled: yes
 - name: export env variable
-  raw: export VAULT_ADDR=http://10.2.3.70:8200
+  raw: export VAULT_ADDR=http://192.168.56.4:8200

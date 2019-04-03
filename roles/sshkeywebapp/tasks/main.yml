@@ -4,6 +4,6 @@
   authorized_key:
     user: vagrant
     state: present
-    key: "{{ lookup('file', '/home/marco/project/cicd-Project/.ssh_keys/jenkins.pub') }}"
+    key: "{{ lookup('file', '/home/marcolcal/shadow-project/cicd-Project/.ssh_keys/jenkins.pub') }}"
   tags:
     - sshkeys
