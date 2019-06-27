@@ -13,7 +13,7 @@
   <li>Preprod-Server</li>
 </ul>
 
-<h1>How to Use</h1>
+<h3>How to Use</h3>
 <p>Clone this repository</p>
 <p>In the root of your directory run vagrant up</p>
 <p>Done</p>
