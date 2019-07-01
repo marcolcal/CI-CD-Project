@@ -17,3 +17,5 @@
 <p>Clone this repository</p>
 <p>In the root of your directory run vagrant up</p>
 <p>Done</p>
+
+<img align="left" width="600" height="200" src="https://www.python.org/python-.png">
